@@ -596,31 +596,19 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-/* ---------------- AUTO-FIT TO VIEWPORT (mobile) ----------------
-   Detects small screens and shrinks the card via the --fit multiplier
-   until the content fits the visible viewport without scrolling. */
+/* ---------------- MOBILE SIZING ----------------
+   On phones, render the UI at a fixed 90% of the full size (readable,
+   not over-compressed). Desktop stays at full size. If a short screen
+   can't fit everything at 90%, it scrolls rather than shrinking smaller. */
 let _fitRAF;
 function fitNow(){
   cancelAnimationFrame(_fitRAF);
-  _fitRAF = requestAnimationFrame(()=> requestAnimationFrame(runFit));
+  _fitRAF = requestAnimationFrame(runFit);
 }
 function runFit(){
   const root = document.documentElement;
-  root.style.setProperty('--fit','1');
   const isMobile = window.matchMedia('(max-width:600px)').matches;
-  // Only hard-fit the start and per-question screens; results/review may scroll.
-  const fitTarget = !!(document.getElementById('opts') || document.getElementById('start'));
-  if(!isMobile || !fitTarget) return;
-
-  window.scrollTo(0,0);
-  const vh = window.innerHeight;
-  let fit = 1, guard = 0;
-  while(guard++ < 40){
-    const overflow = document.documentElement.scrollHeight - vh;
-    if(overflow <= 2 || fit <= 0.7) break;
-    fit = Math.max(0.7, fit - 0.025);
-    root.style.setProperty('--fit', fit.toFixed(3)); // reading scrollHeight next loop forces reflow
-  }
+  root.style.setProperty('--fit', isMobile ? '0.9' : '1');
 }
 let _rz;
 function onViewportChange(){ clearTimeout(_rz); _rz=setTimeout(fitNow,120); }
