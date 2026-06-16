@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OB Drill — Organisational Behaviour Exam Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EDF0F6;
+    --surface:#FFFFFF;
+    --ink:#14182B;
+    --ink-soft:#444B63;
+    --muted:#787F97;
+    --line:#E3E7F0;
+    --line-soft:#EFF2F8;
+    --accent:#4F46E5;
+    --accent-press:#4338CA;
+    --graphite:#2B2D42;       /* pencil-fill for a penciled-in bubble */
+    --correct:#15803D;
+    --correct-bg:#E7F8EE;
+    --correct-line:#9AE6B4;
+    --wrong:#C81E1E;
+    --wrong-bg:#FDECEC;
+    --wrong-line:#F5B5B5;
+    --radius:18px;
+    --shadow:0 1px 2px rgba(20,24,43,.04), 0 18px 40px -24px rgba(20,24,43,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Inter",system-ui,sans-serif;
+    background:
+      radial-gradient(900px 500px at 12% -8%, #FFFFFF 0%, transparent 55%),
+      radial-gradient(700px 460px at 100% 0%, #E6EAFB 0%, transparent 50%),
+      var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    padding:clamp(16px,4vw,48px) 16px 64px;
+  }
+  .wrap{max-width:680px;margin:0 auto}
+
+  /* ---- masthead ---- */
+  .masthead{display:flex;align-items:baseline;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+  .mark{
+    font-family:"Space Grotesk",sans-serif;font-weight:700;
+    font-size:clamp(22px,4.5vw,30px);letter-spacing:-.02em;color:var(--ink);
+    display:flex;align-items:center;gap:10px;
+  }
+  .mark .bub{
+    width:20px;height:20px;border-radius:50%;border:2.5px solid var(--graphite);
+    position:relative;flex:none;
+  }
+  .mark .bub::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:var(--graphite)}
+  .sub{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---- card ---- */
+  .card{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .card-pad{padding:clamp(22px,4.5vw,38px)}
+
+  /* ---- start screen ---- */
+  h1.title{
+    font-family:"Space Grotesk",sans-serif;font-weight:700;
+    font-size:clamp(26px,5.5vw,38px);line-height:1.12;letter-spacing:-.025em;
+    margin:0 0 10px;
+  }
+  .lead{color:var(--ink-soft);font-size:15.5px;margin:0 0 26px;max-width:46ch}
+  .eyebrow{
+    font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted);margin:0 0 12px;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+  .chip{
+    font-family:"Space Mono",monospace;font-size:12.5px;
+    border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);
+    padding:8px 13px;border-radius:999px;cursor:pointer;user-select:none;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+  }
+  .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .chip:hover{border-color:var(--ink)}
+  .chip:active{transform:translateY(1px)}
+  .chip:focus-visible{outline:3px solid #C7CCFB;outline-offset:2px}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:14px 0;border-top:1px solid var(--line-soft)}
+  .toggle-row .lbl{font-weight:500;font-size:14.5px}
+  .toggle-row .hint{font-size:12.5px;color:var(--muted)}
+  .switch{position:relative;width:46px;height:27px;flex:none;cursor:pointer}
+  .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .switch .track{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:background .18s}
+  .switch .knob{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s}
+  .switch input:checked + .track{background:var(--accent)}
+  .switch input:checked ~ .knob{transform:translateX(19px)}
+  .switch input:focus-visible + .track{outline:3px solid #C7CCFB;outline-offset:2px}
+
+  /* ---- buttons ---- */
+  .btn{
+    font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:15px;letter-spacing:.01em;
+    border:none;border-radius:12px;padding:14px 22px;cursor:pointer;
+    transition:background .15s,transform .08s,box-shadow .15s;
+    display:inline-flex;align-items:center;gap:9px;
+  }
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-press)}
+  .btn-primary:active{transform:translateY(1px)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--ink)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn:focus-visible{outline:3px solid #C7CCFB;outline-offset:2px}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+  .btn .arrow{font-family:"Space Mono",monospace}
+
+  /* ---- quiz head / progress ---- */
+  .progress{height:6px;background:var(--line-soft)}
+  .progress .fill{height:100%;background:var(--accent);width:0;transition:width .35s cubic-bezier(.4,0,.2,1)}
+  .qmeta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .tag{
+    font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);background:#EEEDFC;padding:5px 10px;border-radius:7px;font-weight:700;
+  }
+  .counter{font-family:"Space Mono",monospace;font-size:12.5px;color:var(--muted);letter-spacing:.04em}
+
+  .question{
+    font-family:"Space Grotesk",sans-serif;font-weight:500;
+    font-size:clamp(18px,3.4vw,21px);line-height:1.4;letter-spacing:-.01em;
+    margin:0 0 22px;color:var(--ink);
+  }
+
+  /* ---- options as scantron bubbles ---- */
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{
+    display:flex;align-items:flex-start;gap:14px;width:100%;text-align:left;
+    background:#fff;border:1.5px solid var(--line);border-radius:13px;
+    padding:14px 16px;cursor:pointer;font:inherit;color:var(--ink);
+    transition:border-color .14s,background .14s,box-shadow .14s;
+  }
+  .opt:hover:not(:disabled){border-color:#B9BEEF;background:#FBFBFE}
+  .opt:disabled{cursor:default}
+  .opt:focus-visible{outline:3px solid #C7CCFB;outline-offset:2px}
+  .bubble{
+    flex:none;width:30px;height:30px;border-radius:50%;
+    border:2px solid #C2C7D6;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Space Mono",monospace;font-weight:700;font-size:13px;
+    transition:background .15s,border-color .15s,color .15s,transform .12s;
+  }
+  .opt-text{font-size:15px;line-height:1.45;padding-top:4px}
+
+  /* selected (penciled in, pre-submit) */
+  .opt.picked .bubble{background:var(--graphite);border-color:var(--graphite);color:#fff}
+  .opt.picked{border-color:var(--graphite)}
+
+  /* feedback states */
+  .opt.correct{border-color:var(--correct-line);background:var(--correct-bg)}
+  .opt.correct .bubble{background:var(--correct);border-color:var(--correct);color:#fff}
+  .opt.wrong{border-color:var(--wrong-line);background:var(--wrong-bg)}
+  .opt.wrong .bubble{background:var(--wrong);border-color:var(--wrong);color:#fff}
+  .opt .mk{margin-left:auto;font-family:"Space Mono",monospace;font-weight:700;font-size:13px;align-self:center}
+  .opt.correct .mk{color:var(--correct)}
+  .opt.wrong .mk{color:var(--wrong)}
+
+  /* explanation */
+  .explain{
+    margin-top:18px;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.55;
+    border:1px solid var(--line);background:#F8F9FC;color:var(--ink-soft);
+    animation:rise .3s ease both;
+  }
+  .explain.good{background:var(--correct-bg);border-color:var(--correct-line)}
+  .explain.bad{background:var(--wrong-bg);border-color:var(--wrong-line)}
+  .explain .verdict{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:13.5px;
+    text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px}
+  .explain.good .verdict{color:var(--correct)}
+  .explain.bad .verdict{color:var(--wrong)}
+
+  /* ---- results ---- */
+  .score-big{font-family:"Space Grotesk",sans-serif;font-weight:700;
+    font-size:clamp(48px,12vw,76px);line-height:1;letter-spacing:-.03em;margin:6px 0 2px}
+  .score-pct{font-family:"Space Mono",monospace;color:var(--muted);font-size:14px;letter-spacing:.06em}
+  .verdict-line{font-size:16px;color:var(--ink-soft);margin:18px 0 24px;max-width:42ch}
+  .breakdown{margin-top:8px}
+  .bd-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line-soft)}
+  .bd-name{font-size:13.5px;font-weight:500;flex:none;width:clamp(120px,34vw,210px)}
+  .bd-bar{flex:1;height:9px;background:var(--line-soft);border-radius:999px;overflow:hidden}
+  .bd-bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .6s ease}
+  .bd-num{font-family:"Space Mono",monospace;font-size:12px;color:var(--muted);flex:none;width:46px;text-align:right}
+
+  /* ---- review ---- */
+  .rev-item{padding:18px 0;border-top:1px solid var(--line-soft)}
+  .rev-q{font-family:"Space Grotesk",sans-serif;font-weight:500;font-size:15.5px;margin:0 0 10px;line-height:1.4}
+  .rev-q .num{color:var(--muted);font-family:"Space Mono",monospace;font-size:13px;margin-right:8px}
+  .rev-a{font-size:13.5px;padding:7px 12px;border-radius:9px;margin:5px 0;display:flex;gap:8px}
+  .rev-a .role{font-family:"Space Mono",monospace;font-weight:700;font-size:11px;flex:none;padding-top:1px}
+  .rev-a.yours-wrong{background:var(--wrong-bg);color:#7a1414}
+  .rev-a.correct{background:var(--correct-bg);color:#0f5e2c}
+  .rev-exp{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
+
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .screen{animation:rise .28s ease both}
+  .kbd{font-family:"Space Mono",monospace;font-size:11px;background:#EEF0F6;border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--ink-soft)}
+  .footnote{text-align:center;color:var(--muted);font-size:12px;margin-top:22px;font-family:"Space Mono",monospace;letter-spacing:.03em}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <span class="mark"><span class="bub"></span>OB Drill</span>
+    <span class="sub">Organisational Behaviour · Final exam practice</span>
+  </div>
+
+  <div class="card" id="card"><!-- screens injected here --></div>
+
+  <p class="footnote" id="foot">Keys: <span class="kbd">A</span>–<span class="kbd">E</span> answer · <span class="kbd">Enter</span> next</p>
+</div>
+
+<script>
+/* ============================================================
+   QUESTION BANK
+   Add your own questions below. Shape:
+   { lesson:"...", q:"...", options:[...], answer:<index 0-based>, explanation:"..." }
+   ============================================================ */
+const QUESTIONS = [
+  // ---------- L5 Groups & Teams ----------
+  {lesson:"L5 Groups & Teams", q:"What is the key distinction between a work group and a work team?", options:["Work groups share information while teams produce synergy greater than individual inputs","Work groups are always larger than work teams","Work teams report to one manager while groups do not","Work groups have shared goals while teams do not"], answer:0, explanation:"A work team achieves synergy — output exceeds the sum of individual inputs. A work group only shares information."},
+  {lesson:"L5 Groups & Teams", q:"A team of engineers independently code separate modules, then integrate them at sprint end. Which workflow type is this?", options:["Reciprocal","Sequential","Intensive","Pooled"], answer:3, explanation:"Each member contributes independently and outputs are combined — that is pooled workflow."},
+  {lesson:"L5 Groups & Teams", q:"In status characteristics theory, status is NOT derived from which source?", options:["Power wielded over others","Ability to contribute to group goals","Positively valued personal characteristics","Length of tenure in the organisation"], answer:3, explanation:"The three sources are power over others, contribution to goals, and valued personal traits. Tenure is not one of them."},
+  {lesson:"L5 Groups & Teams", q:"A team spends 70% of discussion on information everyone already knew and 5% on a member's unique data. The best remedy is to:", options:["Increase group size for more common knowledge","Switch to an interacting format for open debate","Deliberately solicit input from cognitively peripheral members first","Use a majority-wins voting scheme"], answer:2, explanation:"Peripheral members hold unique info. Actively drawing them in counters the shared-information bias."},
+  {lesson:"L5 Groups & Teams", q:"The Nominal Group Technique's primary advantage over standard brainstorming is that it:", options:["Requires fewer participants","Lets ideas build on each other spontaneously","Eliminates conformity pressure of vocal group dynamics","Skips the individual writing step to save time"], answer:2, explanation:"Silent independent generation plus secret ranking minimises conformity pressure."},
+  {lesson:"L5 Groups & Teams", q:"Social loafing occurs when individuals:", options:["Exert more effort in groups than alone","Exert less effort working collectively than individually","Take on extra roles to fill group gaps","Conform to norms against their values"], answer:1, explanation:"Social loafing = reduced individual effort when contributions are pooled and unmonitored."},
+  {lesson:"L5 Groups & Teams", q:"A team has strong cohesion but consistently makes poor decisions and quickly dismisses dissent. This best reflects:", options:["Status inequity","Social loafing","High faultline strength","Groupthink driven by excessive cohesion and conformity"], answer:3, explanation:"High cohesion plus suppression of dissent is the classic groupthink pattern."},
+
+  // ---------- L6 Power & Politics ----------
+  {lesson:"L6 Power & Politics", q:"Three factors that create dependence — and therefore power — are:", options:["Authority, formalization, centralization","Importance, scarcity, nonsubstitutability","Coercion, rewards, legitimacy","Breadth, density, tie strength"], answer:1, explanation:"A resource creates dependence when it is important, scarce, and has no substitute."},
+  {lesson:"L6 Power & Politics", q:"A senior engineer with no title is deferred to on architecture and colleagues model her behaviour. Which two power bases are shown?", options:["Legitimate and coercive","Coercive and reward","Expert and referent","Reward and legitimate"], answer:2, explanation:"Technical knowledge = expert power; personal admiration/modelling = referent power."},
+  {lesson:"L6 Power & Politics", q:"A broker in a social network gains power primarily because they:", options:["Have very strong ties with everyone","Occupy a structural hole between disconnected groups","Are formally appointed by management","Belong to the largest cluster"], answer:1, explanation:"Bridging a structural hole means many people depend on the broker for cross-group information."},
+  {lesson:"L6 Power & Politics", q:"Which network configuration is most advantageous for accessing NEW opportunities?", options:["High density + strong ties","Broad network + weak ties bridging structural holes","Narrow network + very strong ties","High density within a single cluster"], answer:1, explanation:"Breadth and weak ties expose you to novel, non-redundant information and opportunities."},
+  {lesson:"L6 Power & Politics", q:"Which factor MOST contributes to political behaviour flourishing in an organisation?", options:["Highly formalised rules removing ambiguity","Abundant resources meeting every group's goals","Ambiguous standards for allocating limited resources","Decentralised decision making removing competition"], answer:2, explanation:"Politics thrive in the ambiguous middle ground where facts don't speak for themselves and resources are scarce."},
+  {lesson:"L6 Power & Politics", q:"Power, unlike status, is distinct because:", options:["Power requires a formal title; status does not","Power is not reliant on others' perceptions; it can be exercised on one's own terms","Power is only exercised downward","Power disappears when one leaves a role"], answer:1, explanation:"Status is conferred by others' perceptions; power can be wielded independently of them."},
+  {lesson:"L6 Power & Politics", q:"Small talkers in organisations are significant because they:", options:["Are usually the most productive employees","Tend to be central influencers and more likely to survive layoffs","Hold formal power over communications","Are the most disengaged segment"], answer:1, explanation:"Frequent informal communicators occupy central network positions and are trusted influencers."},
+  {lesson:"L6 Power & Politics", q:"A university relies on one professor for a unique cutting-edge method with no substitute. Her power is best described as:", options:["High coercive power from fear","High referent power from admiration","High expert power amplified by nonsubstitutability","High legitimate power from rank"], answer:2, explanation:"Specialist knowledge (expert) combined with no substitute maximises dependence and thus power."},
+
+  // ---------- L7 Negotiations ----------
+  {lesson:"L7 Negotiations", q:"Which best describes BATNA?", options:["The midpoint between two reservation prices","The first offer made in a negotiation","What will happen if no agreement is reached","The target each party hopes to achieve"], answer:2, explanation:"BATNA is your fallback if the deal fails — the better it is, the more you can demand."},
+  {lesson:"L7 Negotiations", q:"Hoa's reservation price is $2M; Nam will pay at most $1.5M. Which is TRUE?", options:["A ZOPA exists between $1.5M and $2M","There is no ZOPA, so agreement is impossible without changing a reservation price","The $1.75M midpoint is the ZOPA","A mediator can impose a binding deal at $1.75M"], answer:1, explanation:"Hoa's floor ($2M) exceeds Nam's ceiling ($1.5M) — no overlap, no zone of potential agreement."},
+  {lesson:"L7 Negotiations", q:"Distributive bargaining is MOST appropriate when:", options:["Multiple issues exist and a long-term relationship matters","Both parties need a win-win outcome","A single fixed resource is divided and future interaction is limited","You want to reveal underlying interests"], answer:2, explanation:"Distributive = fixed-pie, win-lose; best for one-off single-issue deals."},
+  {lesson:"L7 Negotiations", q:"A buyer opens 40% above market knowing the counterpart will push back, while truly targeting 20% above. This is:", options:["Integrative bargaining","Phantom anchoring","MESO strategy","A softline concession"], answer:1, explanation:"Phantom anchoring = opening higher than your real expectation to pull the settlement upward."},
+  {lesson:"L7 Negotiations", q:"Anna presents three packages of equal value to her but structured differently; the supplier picks Package 2. She has gained:", options:["A binding commitment before reconsideration","Insight into the supplier's relative priorities","A phantom anchor inflating expectations","Elimination of the ZOPA"], answer:1, explanation:"MESO reveals which dimensions the counterpart values most based on their choice."},
+  {lesson:"L7 Negotiations", q:"A hardline strategy is preferred over softline when:", options:["A long-term relationship is the priority","Multiple issues allow value-creating trades","Reputational outcomes outweigh economic ones","The interaction is a one-time transaction"], answer:3, explanation:"Hardline maximises economic return but risks the relationship — fine for one-off deals."},
+  {lesson:"L7 Negotiations", q:"A conciliator differs from a mediator mainly because a conciliator:", options:["Can impose a binding agreement","Operates through a formal legal framework","Serves as an informal trusted link rather than facilitating structured sessions","Replaces an absent negotiator"], answer:2, explanation:"A conciliator is an informal communication bridge; a mediator actively facilitates the process; an arbitrator imposes."},
+
+  // ---------- L8 Conflicts ----------
+  {lesson:"L8 Conflicts", q:"Which conflict-process stage is where conflict issues 'tend to be defined'?", options:["Stage 1: Potential Opposition","Stage 2: Cognition and Personalisation","Stage 3: Intentions","Stage 4: Behaviour"], answer:1, explanation:"Stage 2 is where parties become aware (perceived) and emotionally involved (felt), defining what the conflict is about."},
+  {lesson:"L8 Conflicts", q:"Task conflict is MOST likely to have a positive effect when it:", options:["Co-occurs with high relationship conflict","Is intense and personal","Occurs at a moderate level and in isolation from relationship conflict","Is resolved by senior leadership imposing a decision"], answer:2, explanation:"Moderate task conflict alone stimulates debate; combined with relationship conflict it turns negative."},
+  {lesson:"L8 Conflicts", q:"Which conflict-handling style is BOTH assertive AND cooperative?", options:["Competing","Avoiding","Accommodating","Collaborating"], answer:3, explanation:"Collaborating seeks a solution that fully satisfies both parties — high assertiveness and high cooperation."},
+  {lesson:"L8 Conflicts", q:"The accommodating style is MOST appropriate when:", options:["You know you are right and must stand firm","You need a fast decision under time pressure","The issue matters much more to the other party than to you","Both parties have strong concerns to fully address"], answer:2, explanation:"Accommodating (unassertive + cooperative) fits when preserving harmony or yielding to a higher-stakes party."},
+  {lesson:"L8 Conflicts", q:"A team debates strategy vigorously but agrees easily on responsibilities and budget. This is:", options:["High task conflict + low process conflict","Low task + high relationship conflict","High process + low task conflict","High task + high relationship conflict"], answer:0, explanation:"Vigorous debate over content = task conflict; smooth logistics = low process conflict."},
+  {lesson:"L8 Conflicts", q:"A startup constantly debates coding methodology without resolution, eating 30% of meetings without improving quality. This is:", options:["Functional task conflict","Relationship conflict","Dysfunctional process conflict","Functional intragroup conflict"], answer:2, explanation:"Endless disagreement over HOW work gets done, wasting time = dysfunctional process conflict."},
+  {lesson:"L8 Conflicts", q:"A manager resolves disputes by deciding outcomes herself without exploring parties' interests. The main limitation is that it:", options:["Escalates conflict to the intergroup level","Is an avoiding style preventing concern articulation","Imposes a solution without addressing interests, lowering buy-in and risking recurrence","Resets the conflict process to Stage 1"], answer:2, explanation:"Imposed solutions that ignore underlying interests reduce commitment and let conflict resurface."},
+
+  // ---------- L9 Leadership ----------
+  {lesson:"L9 Leadership", q:"Trait theories of leadership are MOST useful for predicting:", options:["Who will be effective in all situations","Who will emerge as a leader","Which behavioural style maximises satisfaction","Situational factors determining success"], answer:1, explanation:"Traits predict leadership emergence better than effectiveness."},
+  {lesson:"L9 Leadership", q:"A new hire is enthusiastic (high commitment) but has very limited skills. In SLT, the right style is:", options:["Delegating","Participating/Supporting","Selling/Coaching","Telling/Directing"], answer:3, explanation:"Low competence + high commitment = Telling/Directing: give clear, specific instructions."},
+  {lesson:"L9 Leadership", q:"Skilled engineers (high competence) feel uncertain and resentful after a restructure. The right SLT style is:", options:["Telling/Directing","Selling/Coaching","Participating/Supporting","Delegating"], answer:2, explanation:"High competence + variable/low commitment = Participating/Supporting: step back, stay supportive."},
+  {lesson:"L9 Leadership", q:"In Fiedler's model, task-oriented leaders perform BEST in:", options:["Only moderate-control situations","High-control AND low-control situations","Only high-control situations","High-trust, low-structure situations"], answer:1, explanation:"Task-oriented leaders excel at both favourable and unfavourable extremes; relationship-oriented leaders excel in the middle."},
+  {lesson:"L9 Leadership", q:"A crisis team trusts its leader, the task is clearly structured, and she has strong position power. Fiedler predicts which leader is best?", options:["Relationship-oriented, to keep morale","Task-oriented, because high control favours task focus","Participative, to gather input","Laissez-faire, to let the team self-organise"], answer:1, explanation:"High control (good relations + structure + strong position power) favours task-oriented leadership."},
+  {lesson:"L9 Leadership", q:"Which statement about transactional and transformational leadership is TRUE?", options:["They are opposing styles that cannot coexist","Transformational replaces transactional as a leader matures","Transformational builds on transactional, producing effort beyond transactional alone","Transactional is always more effective in groups"], answer:2, explanation:"They complement each other; transformational adds to a transactional foundation."},
+  {lesson:"L9 Leadership", q:"In the Ohio State studies, which dimension is most associated with follower SATISFACTION?", options:["Initiating structure","Consideration","Task orientation","Position power"], answer:1, explanation:"Consideration (relationship behaviour) predicts follower satisfaction; initiating structure predicts effectiveness."},
+
+  // ---------- L10 Structure ----------
+  {lesson:"L10 Structure", q:"Org A has span of control 4; Org B has span of control 8 (both 4,096 operatives). Which is TRUE?", options:["A is flatter with fewer layers","B is taller with more layers","A has more management layers and is taller","Both have identical layers"], answer:2, explanation:"A narrower span (4) needs more managers and more layers — a taller hierarchy."},
+  {lesson:"L10 Structure", q:"Unity of command means:", options:["All commands issue from one centralised authority","A subordinate has only one superior they directly report to","All employees share the same span of control","Decisions are distributed equally"], answer:1, explanation:"Unity of command = a single, unambiguous boss per subordinate."},
+  {lesson:"L10 Structure", q:"A hospital has strict protocols, functional departments, centralised authority, and narrow spans. This is a:", options:["Holacracy","Virtual organisation","Simple structure","Bureaucracy"], answer:3, explanation:"High specialisation + formal rules + centralised authority + narrow spans = bureaucracy."},
+  {lesson:"L10 Structure", q:"Engineers report to the Chief Engineer AND to a Product Manager simultaneously. The challenge this creates is:", options:["Excessive decentralisation","Violation of unity of command causing confusion and accountability disputes","Insufficient work specialisation","Too-narrow span of control"], answer:1, explanation:"Matrix structures deliberately break unity of command, producing dual-boss confusion and power struggles."},
+  {lesson:"L10 Structure", q:"A consulting firm with no permanent staff contracts specialists per project and disbands teams afterward. This is a:", options:["Circular structure","Bureaucracy","Matrix structure","Virtual organisation"], answer:3, explanation:"A small core that outsources major functions per engagement is a virtual organisation."},
+  {lesson:"L10 Structure", q:"Increasing work specialisation STOPS improving efficiency when:", options:["Any task is split into more than one component","The org outgrows a simple structure","Tasks become so narrow that boredom and absenteeism outweigh specialisation gains","Span of control exceeds the number of roles"], answer:2, explanation:"Beyond a point, monotony from over-specialisation reduces, rather than raises, productivity."},
+  {lesson:"L10 Structure", q:"In a holacracy you would MOST expect to see:", options:["A VP approving all major decisions","A permanent 'Project Manager' title","Employees holding multiple roles across circles based on the work","A formal chain from board to frontline"], answer:2, explanation:"Holacracy has roles not titles, self-organising circles, and no managers."},
+
+  // ---------- L11 Culture ----------
+  {lesson:"L11 Culture", q:"Basic assumptions in organisational culture are significant because they:", options:["Are explicitly communicated during onboarding","Are the easiest layer to change","Are the deepest, largely unconscious values and hard to change","Are formally documented in policies"], answer:2, explanation:"Basic assumptions sit beneath artifacts and espoused values — ingrained and resistant to change."},
+  {lesson:"L11 Culture", q:"A 'Market' culture primarily values:", options:["Collaboration, trust, support","Innovation, variety, autonomy","Communication, competence, competition","Formalisation, routine, stability"], answer:2, explanation:"Market culture is achievement-based: competence and competition drive it."},
+  {lesson:"L11 Culture", q:"A firm's mission praises 'risk-taking', yet bold managers are passed over and strict approvals block new ideas. This shows:", options:["A strong culture where espoused values dominate","A gap between espoused values and basic assumptions (the lived values)","A dominant culture coexisting with innovative subcultures","A hierarchy evolving into an adhocracy"], answer:1, explanation:"Stated values differ from what behaviour actually rewards — the espoused vs. basic-assumptions gap."},
+  {lesson:"L11 Culture", q:"A consulting firm's strategy needs collaboration, but its reward system pays only for individual billable hours. In the congruence model this is:", options:["People vs. Culture misalignment","Formal Organisation (rewards) vs. Key Tasks misalignment","Key Tasks vs. Culture misalignment","Culture vs. Artifacts misalignment"], answer:1, explanation:"The reward system (formal organisation) rewards individual behaviour while tasks require collaboration — a congruence failure."},
+  {lesson:"L11 Culture", q:"Two strong but opposite cultures (clan vs. market) merge; six months later norms are confused and morale drops. This is:", options:["Culture as an asset","Congruence-model success","Culture as a liability — cultural clash harming cohesion","A subculture conflict fixed by socialisation alone"], answer:2, explanation:"Incompatible strong cultures clashing during a merger is a textbook cultural liability."},
+  {lesson:"L11 Culture", q:"An open-plan office where even the CEO sits among staff and fetches their own coffee represents which culture layer?", options:["Basic assumptions","Espoused values","Observable artifacts (material symbols)","Formal structure"], answer:2, explanation:"Physical, observable signals of egalitarianism are material symbols — the artifact layer."},
+  {lesson:"L11 Culture", q:"Culture is sustained over time PRIMARILY through:", options:["The founder's personal presence alone","Automatic self-perpetuation with no intervention","Aligned selection, top-management behaviour, and socialisation of new members","Written policies and procedures exclusively"], answer:2, explanation:"Selection, leadership modelling, and socialisation are the three mechanisms that sustain culture."},
+];
+
+/* ============================================================
+   APP
+   ============================================================ */
+const card = document.getElementById('card');
+const foot = document.getElementById('foot');
+const LESSONS = [...new Set(QUESTIONS.map(q=>q.lesson))];
+
+let state = {
+  selected: new Set(LESSONS),
+  shuffle: true,
+  deck: [],
+  idx: 0,
+  picks: [],     // chosen index per question (null until answered)
+  locked: [],    // whether question is answered
+};
+
+// ---- localStorage best score (works on GitHub Pages; guarded for sandboxes) ----
+function getBest(){ try{ return JSON.parse(localStorage.getItem('obdrill_best')||'null'); }catch(e){ return null; } }
+function setBest(v){ try{ localStorage.setItem('obdrill_best', JSON.stringify(v)); }catch(e){} }
+
+function shuffleArr(a){ const x=a.slice(); for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
+const LETTERS = ['A','B','C','D','E','F'];
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ---------------- START SCREEN ---------------- */
+function renderStart(){
+  foot.style.display='none';
+  const best = getBest();
+  const chips = LESSONS.map(l=>{
+    const on = state.selected.has(l);
+    const count = QUESTIONS.filter(q=>q.lesson===l).length;
+    return `<button class="chip" role="button" aria-pressed="${on}" data-lesson="${esc(l)}">${esc(l)} · ${count}</button>`;
+  }).join('');
+
+  card.innerHTML = `
+  <div class="card-pad screen">
+    <p class="eyebrow">Self-test · ${QUESTIONS.length} questions across ${LESSONS.length} lessons</p>
+    <h1 class="title">Drill the questions<br>until the answers feel obvious.</h1>
+    <p class="lead">One question at a time. Pick an answer, see why it's right, move on. Choose the lessons you want to focus on.</p>
+
+    <p class="eyebrow">Lessons</p>
+    <div class="chips" id="chips">${chips}</div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="lbl">Shuffle questions</div>
+        <div class="hint">Random order each run</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="shuf" ${state.shuffle?'checked':''}>
+        <span class="track"></span><span class="knob"></span>
+      </label>
+    </div>
+
+    ${best ? `<div class="toggle-row"><div><div class="lbl">Best score</div><div class="hint">${best.lessons}</div></div>
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:22px">${best.pct}%</div></div>`:''}
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="start">Start drill <span class="arrow">&rarr;</span></button>
+    </div>
+  </div>`;
+
+  document.getElementById('chips').addEventListener('click', e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    const l = b.dataset.lesson;
+    if(state.selected.has(l)) state.selected.delete(l); else state.selected.add(l);
+    if(state.selected.size===0) state.selected.add(l); // never allow empty
+    b.setAttribute('aria-pressed', state.selected.has(l));
+    document.getElementById('start').disabled = state.selected.size===0;
+  });
+  document.getElementById('shuf').addEventListener('change', e=> state.shuffle = e.target.checked);
+  document.getElementById('start').addEventListener('click', begin);
+}
+
+function begin(){
+  let pool = QUESTIONS.filter(q=>state.selected.has(q.lesson));
+  state.deck = state.shuffle ? shuffleArr(pool) : pool;
+  state.idx = 0;
+  state.picks = new Array(state.deck.length).fill(null);
+  state.locked = new Array(state.deck.length).fill(false);
+  renderQuiz();
+}
+
+/* ---------------- QUIZ SCREEN ---------------- */
+function renderQuiz(){
+  foot.style.display='block';
+  const i = state.idx, q = state.deck[i];
+  const total = state.deck.length;
+  const answered = state.locked[i];
+  const pick = state.picks[i];
+  const pct = Math.round((i)/total*100);
+
+  const opts = q.options.map((opt,oi)=>{
+    let cls='opt', mark='';
+    if(answered){
+      if(oi===q.answer){ cls+=' correct'; mark='<span class="mk">Correct</span>'; }
+      else if(oi===pick){ cls+=' wrong'; mark='<span class="mk">Your pick</span>'; }
+    } else if(oi===pick){ cls+=' picked'; }
+    return `<button class="${cls}" data-oi="${oi}" ${answered?'disabled':''}>
+      <span class="bubble">${LETTERS[oi]}</span>
+      <span class="opt-text">${esc(opt)}</span>${mark}
+    </button>`;
+  }).join('');
+
+  let explain='';
+  if(answered){
+    const right = pick===q.answer;
+    explain = `<div class="explain ${right?'good':'bad'}">
+      <span class="verdict">${right?'Correct':'Not quite'}</span>${esc(q.explanation)}
+    </div>`;
+  }
+
+  const lastQ = i===total-1;
+  card.innerHTML = `
+    <div class="progress"><div class="fill" style="width:${pct}%"></div></div>
+    <div class="card-pad screen">
+      <div class="qmeta">
+        <span class="tag">${esc(q.lesson)}</span>
+        <span class="counter">Q ${String(i+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}</span>
+      </div>
+      <p class="question">${esc(q.q)}</p>
+      <div class="opts" id="opts">${opts}</div>
+      ${explain}
+      <div class="btn-row" ${answered?'':'style="display:none"'} id="navrow">
+        <button class="btn btn-primary" id="next">${lastQ?'See results':'Next question'} <span class="arrow">&rarr;</span></button>
+      </div>
+    </div>`;
+
+  document.getElementById('opts').addEventListener('click', e=>{
+    const b=e.target.closest('.opt'); if(!b||state.locked[i]) return;
+    answer(parseInt(b.dataset.oi,10));
+  });
+  const nx=document.getElementById('next'); if(nx) nx.addEventListener('click', advance);
+}
+
+function answer(oi){
+  const i=state.idx;
+  if(state.locked[i]) return;
+  state.picks[i]=oi;
+  state.locked[i]=true;
+  renderQuiz();
+}
+
+function advance(){
+  if(state.idx < state.deck.length-1){ state.idx++; renderQuiz(); }
+  else renderResults();
+}
+
+/* ---------------- RESULTS SCREEN ---------------- */
+function renderResults(){
+  foot.style.display='none';
+  const total = state.deck.length;
+  const correct = state.deck.reduce((n,q,i)=> n + (state.picks[i]===q.answer?1:0), 0);
+  const pct = Math.round(correct/total*100);
+
+  // per-lesson breakdown
+  const byLesson = {};
+  state.deck.forEach((q,i)=>{
+    const L=q.lesson; byLesson[L]=byLesson[L]||{c:0,t:0};
+    byLesson[L].t++; if(state.picks[i]===q.answer) byLesson[L].c++;
+  });
+  const rows = Object.keys(byLesson).map(L=>{
+    const {c,t}=byLesson[L]; const p=Math.round(c/t*100);
+    const col = p>=80?'var(--correct)':p>=50?'var(--accent)':'var(--wrong)';
+    return `<div class="bd-row">
+      <span class="bd-name">${esc(L)}</span>
+      <span class="bd-bar"><i style="width:${p}%;background:${col}"></i></span>
+      <span class="bd-num">${c}/${t}</span>
+    </div>`;
+  }).join('');
+
+  let verdict;
+  if(pct>=90) verdict="Exam-ready. You're not guessing — you know it.";
+  else if(pct>=75) verdict="Solid. Tighten the lessons sitting below the line and you're there.";
+  else if(pct>=50) verdict="Decent base. The breakdown shows exactly where to put tonight's hours.";
+  else verdict="Early days. Re-read the weak lessons in the revision sheet, then run this again.";
+
+  // best score
+  const lessonsLabel = [...state.selected].length===LESSONS.length ? 'All lessons' : `${state.selected.size} lessons`;
+  const best = getBest();
+  if(!best || pct>best.pct) setBest({pct, lessons:lessonsLabel});
+
+  card.innerHTML = `
+  <div class="card-pad screen" style="text-align:center">
+    <p class="eyebrow" style="text-align:center">Drill complete · ${lessonsLabel}</p>
+    <div class="score-big">${correct}<span style="color:var(--muted);font-weight:500">/${total}</span></div>
+    <div class="score-pct">${pct}% correct</div>
+    <p class="verdict-line" style="margin-left:auto;margin-right:auto">${verdict}</p>
+    <div class="breakdown" style="text-align:left">
+      <p class="eyebrow">Accuracy by lesson</p>
+      ${rows}
+    </div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn btn-ghost" id="review">Review answers</button>
+      <button class="btn btn-ghost" id="retry">Same lessons again</button>
+      <button class="btn btn-primary" id="home">Change lessons</button>
+    </div>
+  </div>`;
+
+  document.getElementById('review').addEventListener('click', renderReview);
+  document.getElementById('retry').addEventListener('click', begin);
+  document.getElementById('home').addEventListener('click', renderStart);
+}
+
+/* ---------------- REVIEW SCREEN ---------------- */
+function renderReview(){
+  foot.style.display='none';
+  const items = state.deck.map((q,i)=>{
+    const pick=state.picks[i], right=pick===q.answer;
+    let block='';
+    if(!right){
+      block += `<div class="rev-a yours-wrong"><span class="role">YOU</span><span>${LETTERS[pick]}) ${esc(q.options[pick])}</span></div>`;
+    }
+    block += `<div class="rev-a correct"><span class="role">ANS</span><span>${LETTERS[q.answer]}) ${esc(q.options[q.answer])}</span></div>`;
+    return `<div class="rev-item">
+      <p class="rev-q"><span class="num">${String(i+1).padStart(2,'0')}</span>${esc(q.q)}</p>
+      ${block}
+      <p class="rev-exp">${esc(q.explanation)}</p>
+    </div>`;
+  }).join('');
+
+  card.innerHTML = `
+  <div class="card-pad screen">
+    <p class="eyebrow">Answer review</p>
+    <h1 class="title" style="font-size:clamp(22px,4.5vw,28px);margin-bottom:18px">Every question, with the reasoning.</h1>
+    ${items}
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="back">Back to results</button>
+      <button class="btn btn-primary" id="home2">Change lessons</button>
+    </div>
+  </div>`;
+  document.getElementById('back').addEventListener('click', renderResults);
+  document.getElementById('home2').addEventListener('click', renderStart);
+}
+
+/* ---------------- KEYBOARD ---------------- */
+document.addEventListener('keydown', e=>{
+  // only during quiz screen
+  const onQuiz = !!document.getElementById('opts');
+  if(onQuiz){
+    const i=state.idx, q=state.deck[i];
+    const k=e.key.toUpperCase();
+    const li=LETTERS.indexOf(k);
+    if(li>-1 && li<q.options.length && !state.locked[i]){ e.preventDefault(); answer(li); return; }
+    const num=parseInt(e.key,10);
+    if(num>=1 && num<=q.options.length && !state.locked[i]){ e.preventDefault(); answer(num-1); return; }
+    if((e.key==='Enter'||e.key==='ArrowRight') && state.locked[i]){ e.preventDefault(); advance(); }
+  } else {
+    if(e.key==='Enter'){
+      const s=document.getElementById('start'); if(s){ e.preventDefault(); begin(); }
+    }
+  }
+});
+
+renderStart();
+</script>
+</body>
+</html>
