@@ -27,6 +27,7 @@
     --wrong-line:#F5B5B5;
     --radius:18px;
     --shadow:0 1px 2px rgba(20,24,43,.04), 0 18px 40px -24px rgba(20,24,43,.28);
+    --fit:1;   /* mobile auto-shrink multiplier, set by JS */
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -209,6 +210,46 @@
     border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--ink-soft)}
   .footnote{text-align:center;color:var(--muted);font-size:12px;margin-top:22px;font-family:"Space Mono",monospace;letter-spacing:.03em}
 
+  @media (max-width:600px){
+    body{padding:0}
+    .wrap{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;padding:calc(14px*var(--fit)) 12px calc(16px*var(--fit))}
+    .masthead{margin-bottom:calc(13px*var(--fit));gap:8px}
+    .mark{font-size:calc(20px*var(--fit))}
+    .mark .bub{width:calc(17px*var(--fit));height:calc(17px*var(--fit));border-width:2px}
+    .mark .bub::after{inset:2px}
+    .sub{display:none}
+    .footnote{display:none!important}
+
+    .card-pad{padding:calc(20px*var(--fit)) calc(17px*var(--fit))}
+    .qmeta{margin-bottom:calc(13px*var(--fit))}
+    .tag{font-size:calc(10px*var(--fit));padding:calc(4px*var(--fit)) calc(8px*var(--fit))}
+    .counter{font-size:calc(11px*var(--fit))}
+    .question{font-size:calc(17px*var(--fit));margin-bottom:calc(15px*var(--fit));line-height:1.34}
+    .opts{gap:calc(8px*var(--fit))}
+    .opt{padding:calc(11px*var(--fit)) calc(13px*var(--fit));gap:calc(11px*var(--fit));border-radius:11px}
+    .bubble{width:calc(26px*var(--fit));height:calc(26px*var(--fit));font-size:calc(12px*var(--fit));border-width:2px}
+    .opt-text{font-size:calc(14px*var(--fit));padding-top:calc(3px*var(--fit));line-height:1.4}
+    .opt .mk{font-size:calc(11px*var(--fit))}
+    .explain{margin-top:calc(13px*var(--fit));padding:calc(11px*var(--fit)) calc(13px*var(--fit));font-size:calc(13px*var(--fit))}
+    .explain .verdict{font-size:calc(12px*var(--fit));margin-bottom:calc(3px*var(--fit))}
+    .btn{padding:calc(12px*var(--fit)) calc(18px*var(--fit));font-size:calc(14px*var(--fit));border-radius:11px}
+    .btn-row{margin-top:calc(16px*var(--fit));gap:calc(8px*var(--fit))}
+
+    /* start screen */
+    h1.title{font-size:calc(25px*var(--fit));margin-bottom:calc(9px*var(--fit))}
+    .lead{font-size:calc(14px*var(--fit));margin-bottom:calc(20px*var(--fit))}
+    .eyebrow{margin-bottom:calc(10px*var(--fit))}
+    .chips{gap:calc(8px*var(--fit));margin-bottom:calc(18px*var(--fit))}
+    .chip{font-size:calc(12px*var(--fit));padding:calc(7px*var(--fit)) calc(12px*var(--fit))}
+    .toggle-row{padding:calc(12px*var(--fit)) 0}
+
+    /* results */
+    .score-big{font-size:calc(46px*var(--fit))}
+    .verdict-line{font-size:calc(14px*var(--fit));margin:calc(14px*var(--fit)) auto calc(18px*var(--fit))}
+    .bd-row{padding:calc(9px*var(--fit)) 0}
+    .bd-name{font-size:calc(13px*var(--fit))}
+  }
+
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important;transition:none !important}
   }
@@ -370,6 +411,7 @@ function renderStart(){
   });
   document.getElementById('shuf').addEventListener('change', e=> state.shuffle = e.target.checked);
   document.getElementById('start').addEventListener('click', begin);
+  fitNow();
 }
 
 function begin(){
@@ -431,6 +473,7 @@ function renderQuiz(){
     answer(parseInt(b.dataset.oi,10));
   });
   const nx=document.getElementById('next'); if(nx) nx.addEventListener('click', advance);
+  fitNow();
 }
 
 function answer(oi){
@@ -500,6 +543,7 @@ function renderResults(){
   document.getElementById('review').addEventListener('click', renderReview);
   document.getElementById('retry').addEventListener('click', begin);
   document.getElementById('home').addEventListener('click', renderStart);
+  fitNow();
 }
 
 /* ---------------- REVIEW SCREEN ---------------- */
@@ -551,6 +595,38 @@ document.addEventListener('keydown', e=>{
     }
   }
 });
+
+/* ---------------- AUTO-FIT TO VIEWPORT (mobile) ----------------
+   Detects small screens and shrinks the card via the --fit multiplier
+   until the content fits the visible viewport without scrolling. */
+let _fitRAF;
+function fitNow(){
+  cancelAnimationFrame(_fitRAF);
+  _fitRAF = requestAnimationFrame(()=> requestAnimationFrame(runFit));
+}
+function runFit(){
+  const root = document.documentElement;
+  root.style.setProperty('--fit','1');
+  const isMobile = window.matchMedia('(max-width:600px)').matches;
+  // Only hard-fit the start and per-question screens; results/review may scroll.
+  const fitTarget = !!(document.getElementById('opts') || document.getElementById('start'));
+  if(!isMobile || !fitTarget) return;
+
+  window.scrollTo(0,0);
+  const vh = window.innerHeight;
+  let fit = 1, guard = 0;
+  while(guard++ < 40){
+    const overflow = document.documentElement.scrollHeight - vh;
+    if(overflow <= 2 || fit <= 0.7) break;
+    fit = Math.max(0.7, fit - 0.025);
+    root.style.setProperty('--fit', fit.toFixed(3)); // reading scrollHeight next loop forces reflow
+  }
+}
+let _rz;
+function onViewportChange(){ clearTimeout(_rz); _rz=setTimeout(fitNow,120); }
+window.addEventListener('resize', onViewportChange);
+window.addEventListener('orientationchange', onViewportChange);
+window.addEventListener('load', ()=>{ fitNow(); setTimeout(fitNow,300); }); // re-fit after webfonts settle
 
 renderStart();
 </script>
